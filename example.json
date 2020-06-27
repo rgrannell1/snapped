@@ -1,0 +1,57 @@
+{
+  "template": "logstash-qa01-stats-*",
+  "settings": {
+    "index.refresh_interval": "10s"
+  },
+  "mappings": {
+    "_default_": {
+      "_all": {
+        "enabled": false,
+        "norms": false
+      },
+      "dynamic_templates": [
+        {
+          "string_fields": {
+            "match": "*",
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "string",
+              "index": true,
+              "doc_values": true
+            }
+          }
+        },
+        {
+          "byte_fields": {
+            "match": "*",
+            "match_mapping_type": "long",
+            "mapping": {
+              "type": "double",
+              "doc_values": true
+            }
+          }
+        },
+        {
+          "short_fields": {
+            "match": "*",
+            "match_mapping_type": "long",
+            "mapping": {
+              "type": "double",
+              "doc_values": true
+            }
+          }
+        },
+        {
+          "integer_fields": {
+            "match": "*",
+            "match_mapping_type": "long",
+            "mapping": {
+              "type": "double",
+              "doc_values": true
+            }
+          }
+        }
+      ]
+    }
+  }
+}
