@@ -3,8 +3,10 @@
 
 ## Usage
 
-```
+snapped automates several minor but time-consuming ElasticSearch maintanance tasks.
 
+```
+snapped analyseIndex data.json
 ```
 
 ## License
