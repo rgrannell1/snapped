@@ -3,15 +3,25 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 
 	"github.com/docopt/docopt-go"
 )
 
-func enumerateProperties(data interface{}) error {
-	data
-	return nil
+func enumerateProperties(names []string, data interface{}) ([]string, error) {
+	switch typeVal := data.(type) {
+	case map[string]interface{}:
+		// -- enumerate down & track property names.
+		for key, _ := range typeVal {
+			names = append(names, key)
+		}
+	default:
+		return nil, errors.New("did not match type")
+	}
+
+	return names, nil
 }
 
 func analyseIndex(arguments docopt.Opts) error {
@@ -25,7 +35,15 @@ func analyseIndex(arguments docopt.Opts) error {
 		return errors.New("SNP_001" + ": failed to parse JSON data")
 	}
 
-	enumerateProperties(data)
+	switch typed := data.(type) {
+	case map[string]interface{}:
+		var names []string
+		names, _ = enumerateProperties(names, typed["mappings"])
+
+		fmt.Println(names)
+	default:
+		return errors.New("SNP_001" + ": failed to parse JSON data mappings")
+	}
 
 	return nil
 }
