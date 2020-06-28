@@ -1,37 +1,52 @@
 
 import os
 import json
+from os import initgroups
 
 constants = {
   "BAD_FILE": "SNP_001"
 }
 
-def analyseProperties (props, mappings):
-  if "properties" in mappings:
-    for prop_name, prop_val in mappings["properties"].items():
-      inner_props = analyseProperties({}, prop_val)
-      props[prop_name] = inner_props
+def analyseProperties2(ancestor, val):
+  if isinstance(val, dict) and "properties" in val:
+    decendents = []
+    for key, innerVal in val["properties"].items():
+      inner = analyseProperties2(ancestor + [key], innerVal)
+
+      if isinstance(inner, list) and len(inner) > 0 and isinstance(inner[0], list):
+        for entry in inner:
+          decendents.append(entry)
+      else:
+        decendents.append(inner)
+    return decendents
+  elif isinstance(val, dict) and val["type"] == "text" and "fields" in val:
+    return [
+      ancestor,
+      ancestor[0:-1] + [ancestor[-1] + '_keyword']
+    ]
   else:
-    is_text = "type" in mappings and mappings["type"] == "text"
+    return ancestor
 
-    if not is_text:
-      return
+def printIndexSummary (val, args):
+  message = "".rjust(args["indent"], " ")
+  message += ".".join(args["props"])
 
-    has_keywords = "fields" in mappings and "keyword" in mappings["fields"]
+  if isinstance(val, dict) and "count" in val:
+    percentage = 100 * (val["count"] / args["total"])
+    print(message.ljust(40, " ") +
+          str(val["count"]).ljust(10) + str(round(percentage)))
 
-    if not has_keywords:
-      return
-
-    has_keyword_type = "type" in mappings["fields"]["keyword"] and mappings["fields"]["keyword"]["type"] == "keyword"
-
-    if not has_keyword_type:
-      return
-
-    return {
-      "keyword": {}
-    }
-
-  return props
+  if isinstance(val, dict):
+    for prop, data in val.items():
+      if prop == "count":
+        continue
+      printIndexSummary(data, {
+        "props": args["props"] + [prop],
+        "indent": args["indent"] + 2,
+        "total": args["total"]
+      })
+  else:
+    pass
 
 def snapped (raw_args):
   fpath = raw_args["<index>"]
@@ -51,11 +66,34 @@ def snapped (raw_args):
 
   for index, mapping in index_data.items():
     if "mappings" in mapping:
-      props = {}
-      analyseProperties(props, mapping["mappings"])
-      indexProps[index] = props
+      indexProps[index] = analyseProperties2([], mapping["mappings"])
     else:
       raise Exception(constants["BAD_FILE"] + ": " +
                       fpath + " had index " + index + " without mappings field.")
 
-  print(indexProps)
+  state = { }
+
+  for index, props in indexProps.items():
+    for propList in props:
+      present = state
+      for propPart in propList:
+        if propPart in present:
+          present = present[propPart]
+          present["count"] += 1
+        else:
+          present[propPart] = {
+            "count": 1
+          }
+          present = present[propPart]
+
+  print("property path".ljust(40) + "count".ljust(10) + "percentage")
+
+  total = sum([entry["count"] for entry in state.values()])
+  header = "total".ljust(40, ' ') + str(total).ljust(10) + str(100)
+  print(header)
+
+  printIndexSummary(state, {
+    "indent": 0,
+    "props": [],
+    "total": total
+  })

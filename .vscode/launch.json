@@ -5,13 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch",
-      "type": "go",
+      "name": "Python: Current File",
+      "type": "python",
       "request": "launch",
-      "mode": "auto",
-      "program": "${fileDirname}/../src/cli.go",
-      "env": {},
-      "args": ["analyseIndex", "example.json"]
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "analyse", "example.json"
+      ]
     }
   ]
 }
