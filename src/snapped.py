@@ -31,18 +31,18 @@ def printIndexSummary (val, args):
   message = "".rjust(args["indent"], " ")
   message += ".".join(args["props"])
 
-  if isinstance(val, dict) and "count" in val:
+  if isinstance(val, dict) and "hackForBadProp" in val:
 
-    if val["count"] > 1:
-      percentage = 100 * (val["count"] / args["total"])
+    if val["hackForBadProp"] > 1:
+      percentage = 100 * (val["hackForBadProp"] / args["total"])
       print(message.ljust(40, " ") +
-            str(val["count"]).ljust(10) + str(round(percentage)))
+            str(val["hackForBadProp"]).ljust(10) + str(round(percentage)))
     else:
       print(message)
 
   if isinstance(val, dict):
     for prop, data in val.items():
-      if prop == "count":
+      if prop == "hackForBadProp":
         continue
       printIndexSummary(data, {
         "props": args["props"] + [prop],
@@ -83,16 +83,16 @@ def snapped (raw_args):
       for propPart in propList:
         if propPart in present:
           present = present[propPart]
-          present["count"] += 1
+          present["hackForBadProp"] += 1
         else:
           present[propPart] = {
-            "count": 1
+            "hackForBadProp": 1
           }
           present = present[propPart]
 
   print("property path".ljust(40) + "count".ljust(10) + "percentage")
 
-  total = sum([entry["count"] for entry in state.values()])
+  total = sum([entry["hackForBadProp"] for entry in state.values()])
   header = "total".ljust(40, ' ') + str(total).ljust(10) + str(100)
   print(header)
 
