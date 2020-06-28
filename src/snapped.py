@@ -32,9 +32,13 @@ def printIndexSummary (val, args):
   message += ".".join(args["props"])
 
   if isinstance(val, dict) and "count" in val:
-    percentage = 100 * (val["count"] / args["total"])
-    print(message.ljust(40, " ") +
-          str(val["count"]).ljust(10) + str(round(percentage)))
+
+    if val["count"] > 1:
+      percentage = 100 * (val["count"] / args["total"])
+      print(message.ljust(40, " ") +
+            str(val["count"]).ljust(10) + str(round(percentage)))
+    else:
+      print(message)
 
   if isinstance(val, dict):
     for prop, data in val.items():
