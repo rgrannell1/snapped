@@ -1,9 +1,9 @@
 
 # snapped
 
-## Usage
-
 snapped automates several minor but time-consuming ElasticSearch maintanance tasks.
+
+## Usage
 
 ```
 snapped analyseIndex data.json
