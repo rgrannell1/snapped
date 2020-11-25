@@ -9,6 +9,10 @@ snapped automates several minor but time-consuming ElasticSearch maintanance tas
 snapped analyseIndex data.json
 ```
 
+### Stability Index
+
+> 1, Experimental - This project might die, it's undertested and underdocumented, and redesigns and breaking changes are likely
+
 ## License
 
 The MIT License
